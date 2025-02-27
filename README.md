@@ -60,6 +60,27 @@ This project is an end-to-end data analysis solution designed to extract critica
      - Sales performance by time, city, and payment method.
      - Analyzing peak sales periods and customer buying patterns.
      - Profit margin analysis by branch and category.
+     - Identify 5 branch with the highest decrease ratio in revenue compare to last year (current year 2023 and last year 2022)
+```sql
+-- 2022 sales;
+with revenue_2022 as 
+(select branch , sum(total) as revenue from new_walmart 
+where YEAR(STR_TO_DATE(date, '%d/%m/%y')) = 2022
+group by branch),
+
+revenue_2023 as
+( select branch , sum(total) as revenue from new_walmart 
+where YEAR(STR_TO_DATE(date, '%d/%m/%y')) = 2023 
+group by branch)
+
+select  ls.branch , ls.revenue as last_year_revenue , cs.revenue as current_year_revenue , 
+round((cast((ls.revenue - cs.revenue) as decimal) / cast(ls.revenue as decimal )) * 100 , 2)as revenue_decreased_ratio
+from revenue_2022 as ls join  revenue_2023 as cs on ls.branch = cs.branch 
+where  ls.revenue > cs.revenue 
+order by round((cast((ls.revenue - cs.revenue) as decimal) / cast(ls.revenue as decimal )) * 100 , 2) desc
+limit 5
+```
+
    - **Documentation**: Keep clear notes of each query's objective, approach, and results.
 
 ### 10. Project Publishing and Documentation
